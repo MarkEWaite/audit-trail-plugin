@@ -389,6 +389,16 @@ public class ElasticSearchAuditLogger extends AuditLogger {
             payload.put("message", data);
             payload.put(
                     "@timestamp", DATE_FORMATTER.format(Calendar.getInstance().getTime()));
+            payload.put("jenkins.version", Jenkins.VERSION);
+            payload.put("jenkins.url", Jenkins.get().getRootUrl());
+            payload.put("jenkins.audittrail.plugin.version", Jenkins.get().pluginManager.getPlugin("audit-trail").getVersion().toString());
+            try {
+                    payload.put("jenkins.controller.computer.name", java.net.InetAddress.getLocalHost().getHostName());
+                    payload.put("jenkins.controller.computer.address", java.net.InetAddress.getLocalHost().getHostAddress());
+            } catch (Exception e) {
+                    payload.put("jenkins.controller.computer.name", "");
+                    payload.put("jenkins.controller.computer.address", "");
+            }
             StringEntity input = new StringEntity(
                     payload.toString(), ContentType.APPLICATION_JSON, StandardCharsets.UTF_8.name(), false);
             postRequest.setEntity(input);
