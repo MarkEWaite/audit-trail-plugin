@@ -56,18 +56,22 @@ public class ElasticSearchAuditLoggerTest {
     public void testGetHttpPostContainsExpectedKeys() throws Exception {
         ElasticSearchAuditLogger auditLogger = new ElasticSearchAuditLogger(esUrl, true);
         auditLogger.configure();
-
+        assertTrue(auditLogger.getElasticSearchSender() != null);
         HttpPost post = auditLogger.getElasticSearchSender().getHttpPost("test-event");
-
         String body = EntityUtils.toString(post.getEntity());
         JSONObject json = JSONObject.fromObject(body);
-
         assertTrue("message key should be present", json.containsKey("message"));
         assertTrue("@timestamp key should be present", json.containsKey("@timestamp"));
         assertTrue("jenkins.version key should be present", json.containsKey("jenkins.version"));
         assertTrue("jenkins.url key should be present", json.containsKey("jenkins.url"));
-        assertTrue("jenkins.audittrail.plugin.version key should be present", json.containsKey("jenkins.audittrail.plugin.version"));
-        assertTrue("jenkins.controller.computer.name key should be present", json.containsKey("jenkins.controller.computer.name"));
-        assertTrue("jenkins.controller.computer.address key should be present", json.containsKey("jenkins.controller.computer.address"));
+        assertTrue(
+            "jenkins.audittrail.plugin.version key should be present",
+            json.containsKey("jenkins.audittrail.plugin.version"));
+        assertTrue(
+            "jenkins.controller.computer.name key should be present",
+            json.containsKey("jenkins.controller.computer.name"));
+        assertTrue(
+            "jenkins.controller.computer.address key should be present",
+            json.containsKey("jenkins.controller.computer.address"));
     }
 }
