@@ -33,6 +33,7 @@ import com.cloudbees.plugins.credentials.common.StandardUsernamePasswordCredenti
 import com.cloudbees.plugins.credentials.domains.DomainRequirement;
 import com.cloudbees.plugins.credentials.domains.URIRequirementBuilder;
 import hudson.Extension;
+import hudson.PluginWrapper;
 import hudson.model.Descriptor;
 import hudson.security.ACL;
 import hudson.util.FormValidation;
@@ -391,18 +392,17 @@ public class ElasticSearchAuditLogger extends AuditLogger {
                     "@timestamp", DATE_FORMATTER.format(Calendar.getInstance().getTime()));
             payload.put("jenkins.version", Jenkins.VERSION);
             payload.put("jenkins.url", Jenkins.get().getRootUrl());
-            payload.put(
-                "jenkins.audittrail.plugin.version",
-                Jenkins.get()
-                    .pluginManager
-                    .getPlugin("audit-trail")
-                    .getVersion()
-                    .toString());
+            PluginWrapper plugin = Jenkins.get().pluginManager.getPlugin("audit-trail");
+            if (plugin != null) {
+                payload.put("jenkins.audittrail.plugin.version", plugin.getVersion());
+            } else {
+                payload.put("jenkins.audittrail.plugin.version", "");
+            }
             try {
-                    payload.put(
+                payload.put(
                         "jenkins.controller.computer.name",
                         java.net.InetAddress.getLocalHost().getHostName());
-                    payload.put(
+                payload.put(
                         "jenkins.controller.computer.address",
                         java.net.InetAddress.getLocalHost().getHostAddress());
             } catch (Exception e) {
