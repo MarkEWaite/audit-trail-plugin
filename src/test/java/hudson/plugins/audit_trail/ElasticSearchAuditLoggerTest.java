@@ -65,13 +65,13 @@ public class ElasticSearchAuditLoggerTest {
         assertTrue("jenkins.version key should be present", json.containsKey("jenkins.version"));
         assertTrue("jenkins.url key should be present", json.containsKey("jenkins.url"));
         assertTrue(
-            "jenkins.audittrail.plugin.version key should be present",
-            json.containsKey("jenkins.audittrail.plugin.version"));
+                "jenkins.audittrail.plugin.version key should be present",
+                json.containsKey("jenkins.audittrail.plugin.version"));
         assertTrue(
-            "jenkins.controller.computer.name key should be present",
-            json.containsKey("jenkins.controller.computer.name"));
+                "jenkins.controller.computer.name key should be present",
+                json.containsKey("jenkins.controller.computer.name"));
         assertTrue(
-            "jenkins.controller.computer.address key should be present",
-            json.containsKey("jenkins.controller.computer.address"));
+                "jenkins.controller.computer.address key should be present",
+                json.containsKey("jenkins.controller.computer.address"));
     }
 }
