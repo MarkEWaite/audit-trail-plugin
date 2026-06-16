@@ -311,6 +311,8 @@ public class ElasticSearchAuditLogger extends AuditLogger {
         private final String url;
         private final String auth;
         private final boolean skipCertificateValidation;
+        private final String localHostName;
+        private final String localHostAddress;
 
         public ElasticSearchSender(
                 String url,
@@ -329,6 +331,20 @@ public class ElasticSearchAuditLogger extends AuditLogger {
             }
             this.skipCertificateValidation = skipCertificateValidation;
             httpClient = createHttpClient(clientKeyStore, clientKeyStorePassword, skipCertificateValidation);
+            String hostName;
+            try {
+                hostName = java.net.InetAddress.getLocalHost().getHostName();
+            } catch (Exception e) {
+                hostName = "";
+            }
+            this.localHostName = hostName;
+            String hostAddress;
+            try {
+                hostAddress = java.net.InetAddress.getLocalHost().getHostAddress();
+            } catch (Exception e) {
+                hostAddress = "";
+            }
+            this.localHostAddress = hostAddress;
         }
 
         public String getUrl() {
@@ -398,17 +414,8 @@ public class ElasticSearchAuditLogger extends AuditLogger {
             } else {
                 payload.put("jenkins.audittrail.plugin.version", "");
             }
-            try {
-                payload.put(
-                        "jenkins.controller.computer.name",
-                        java.net.InetAddress.getLocalHost().getHostName());
-                payload.put(
-                        "jenkins.controller.computer.address",
-                        java.net.InetAddress.getLocalHost().getHostAddress());
-            } catch (Exception e) {
-                payload.put("jenkins.controller.computer.name", "");
-                payload.put("jenkins.controller.computer.address", "");
-            }
+            payload.put("jenkins.controller.computer.name", localHostName);
+            payload.put("jenkins.controller.computer.address", localHostAddress);
             StringEntity input = new StringEntity(
                     payload.toString(), ContentType.APPLICATION_JSON, StandardCharsets.UTF_8.name(), false);
             postRequest.setEntity(input);
