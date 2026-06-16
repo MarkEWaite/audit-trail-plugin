@@ -392,7 +392,7 @@ public class ElasticSearchAuditLogger extends AuditLogger {
                     "@timestamp", DATE_FORMATTER.format(Calendar.getInstance().getTime()));
             payload.put("jenkins.version", Jenkins.VERSION);
             payload.put("jenkins.url", Jenkins.get().getRootUrl());
-            PluginWrapper plugin = Jenkins.get().pluginManager.getPlugin("audit-trail");
+            PluginWrapper plugin = Jenkins.get().getPluginManager().getPlugin("audit-trail");
             if (plugin != null) {
                 payload.put("jenkins.audittrail.plugin.version", plugin.getVersion());
             } else {
