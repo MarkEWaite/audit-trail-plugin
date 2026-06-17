@@ -331,6 +331,8 @@ public class ElasticSearchAuditLogger extends AuditLogger {
             }
             this.skipCertificateValidation = skipCertificateValidation;
             httpClient = createHttpClient(clientKeyStore, clientKeyStorePassword, skipCertificateValidation);
+
+            // Cache hostname and address to prevent potential delays caused by DNS queries
             String hostName;
             try {
                 hostName = java.net.InetAddress.getLocalHost().getHostName();
