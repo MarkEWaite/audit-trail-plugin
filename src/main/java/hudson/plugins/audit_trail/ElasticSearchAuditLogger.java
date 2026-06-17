@@ -33,6 +33,7 @@ import com.cloudbees.plugins.credentials.common.StandardUsernamePasswordCredenti
 import com.cloudbees.plugins.credentials.domains.DomainRequirement;
 import com.cloudbees.plugins.credentials.domains.URIRequirementBuilder;
 import hudson.Extension;
+import hudson.PluginWrapper;
 import hudson.model.Descriptor;
 import hudson.security.ACL;
 import hudson.util.FormValidation;
@@ -310,6 +311,8 @@ public class ElasticSearchAuditLogger extends AuditLogger {
         private final String url;
         private final String auth;
         private final boolean skipCertificateValidation;
+        private final String localHostName;
+        private final String localHostAddress;
 
         public ElasticSearchSender(
                 String url,
@@ -328,6 +331,22 @@ public class ElasticSearchAuditLogger extends AuditLogger {
             }
             this.skipCertificateValidation = skipCertificateValidation;
             httpClient = createHttpClient(clientKeyStore, clientKeyStorePassword, skipCertificateValidation);
+
+            // Cache hostname and address to prevent potential delays caused by DNS queries
+            String hostName;
+            try {
+                hostName = java.net.InetAddress.getLocalHost().getHostName();
+            } catch (Exception e) {
+                hostName = "";
+            }
+            this.localHostName = hostName;
+            String hostAddress;
+            try {
+                hostAddress = java.net.InetAddress.getLocalHost().getHostAddress();
+            } catch (Exception e) {
+                hostAddress = "";
+            }
+            this.localHostAddress = hostAddress;
         }
 
         public String getUrl() {
@@ -389,6 +408,16 @@ public class ElasticSearchAuditLogger extends AuditLogger {
             payload.put("message", data);
             payload.put(
                     "@timestamp", DATE_FORMATTER.format(Calendar.getInstance().getTime()));
+            payload.put("jenkins.version", Jenkins.VERSION);
+            payload.put("jenkins.url", Jenkins.get().getRootUrl());
+            PluginWrapper plugin = Jenkins.get().getPluginManager().getPlugin("audit-trail");
+            if (plugin != null) {
+                payload.put("jenkins.audittrail.plugin.version", plugin.getVersion());
+            } else {
+                payload.put("jenkins.audittrail.plugin.version", "");
+            }
+            payload.put("jenkins.controller.computer.name", localHostName);
+            payload.put("jenkins.controller.computer.address", localHostAddress);
             StringEntity input = new StringEntity(
                     payload.toString(), ContentType.APPLICATION_JSON, StandardCharsets.UTF_8.name(), false);
             postRequest.setEntity(input);
